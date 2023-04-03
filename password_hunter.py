@@ -3,7 +3,7 @@ from tkinter import messagebox
 from edge import edge_browser
 import chrome
 import firefox
-from firefoxe1 import FirefoxBrowser
+from firefox_plus import FirefoxBrowser
 from brave import Brave
 from windpass import WindowWifiPass
 import subprocess
@@ -20,42 +20,6 @@ cookies = chrome.cookies()
 search_terms, web_history = chrome.history()
 autofill_data, credit_card_info = chrome.web_data()
 
-# class LoginPage(tk.Frame):
-#     def __init__(self, master=None):
-#         super().__init__(master)
-#         self.master = master
-#         self.master.title("Login Page")
-#         # Create login label and entry fields
-#         tk.Label(self, text="Username: ").grid(row=0, column=0, padx=10, pady=10)
-#         self.username_entry = tk.Entry(self)
-#         self.username_entry.grid(row=0, column=1, padx=10, pady=10)
-#         tk.Label(self, text="Password: ").grid(row=1, column=0, padx=10, pady=10)
-#         self.password_entry = tk.Entry(self, show="*")
-#         self.password_entry.grid(row=1, column=1, padx=10, pady=10)
-
-#         # Create login and quit buttons
-#         tk.Button(self, text="Login", command=self.login).grid(row=5, column=0, padx=10, pady=10)
-#         tk.Button(self, text="Quit", command=self.quit).grid(row=5, column=1, padx=10, pady=10)
-
-#         self.pack()
-
-#     def login(self):
-#         username = self.username_entry.get()
-#         password = self.password_entry.get()
-
-#         # Check if username and password are valid
-#         if username == "admin" and password == "password":
-
-#             self.master.destroy()
-#             root = tk.Tk()
-#             menu = Main(root)
-#             center_window(root, 800, 450)
-#             root.mainloop()
-
-#         else:
-#             messagebox.showerror("Error", "Invalid username or password.")
-#     def quit(self):
-#         self.master.destroy()
 
 # main pages
 
@@ -75,9 +39,37 @@ class Main:
         self.listbox.pack(fill=tk.BOTH, expand=True, padx=10, pady=10)
 
         self.listbox.delete(0, tk.END)
-        with open("description.txt","r") as f:
-            descrition = f.read()
-            self.listbox.insert(tk.END, *descrition.split("\n"))
+        message = '''
+        P A S S W O R D  H U N T E R
+        Version: 1.0
+
+        Developers:
+
+        1. KWITEE D. GAYLAH
+        2. ZONGO WEND-BENEDO SIMEON
+
+        <Source Code> https://github.com/PasswordHunter/passwordhunter
+
+        Licensed under MIT LICENSE
+        
+        Please be advised that the Password Hunter program is strictly intended for 
+        educational purposes only. The tool is designed to extract sensitive information 
+        from popular web browsers and devices and is aimed at cyber security students and 
+        professionals interested in web browser and device security.
+
+        It is important to note that using this tool on any system or device without the 
+        explicit permission of the owner is illegal and considered unethical. 
+        The creators of this tool are not responsible for any unlawful or unethical 
+        carried out using this program.
+
+        We strongly encourage you to use this tool in a controlled and responsible manner, with 
+        the utmost respect for the privacy and security of others. Any misuse of this tool can 
+        lead to serious consequences and legal action against you
+        
+        -----BEST OF LUCK-----'''
+
+        self.listbox.insert(tk.END, *message.split("\n"))
+
 
         self.password_label = tk.Label(root, font=("Helvetica", 12,"bold"),fg="white", text="")
         self.password_label.pack_forget()

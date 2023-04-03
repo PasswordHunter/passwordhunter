@@ -3,7 +3,6 @@ import json
 import shutil
 import base64
 import sqlite3
-from zipfile import ZipFile
 from Cryptodome.Cipher import AES
 from win32crypt import CryptUnprotectData
 from datetime import datetime, timezone, timedelta

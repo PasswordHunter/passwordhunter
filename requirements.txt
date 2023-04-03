@@ -1,3 +1,5 @@
 browser_cookie3
 Cryptodome
 wmi
+json
+pycrypto

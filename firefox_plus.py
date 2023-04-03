@@ -64,11 +64,3 @@ class FirefoxBrowser:
             data_cookies += f"Cookies expires : {cookie.expires} \n\n"
             cookies_data += data_cookies
         return "*"*60+"\t Firefox Cookies data\t "+"*"*60+"\n"+ cookies_data
-
-
-# firfoxe = FirefoxBrowser()
-
-# file = firfoxe.firefox_history()
-
-# print(file)
-# print(firfoxe.firefox_date_and_time(1680259862819000))
