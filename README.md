@@ -14,7 +14,7 @@ python password_hunter.py
 ```
 
 # Convert it to exe to run on any windows machine
+Note: To compile the codes into an executable requires knowledge of the use of pyinstaller, please read more about it before running the below code.
 ```
 pyinstaller --onefile --icon=icon.ico --name=Password Hunter password_hunter.py
 ```
-
