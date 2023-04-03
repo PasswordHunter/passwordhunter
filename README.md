@@ -1,2 +1,2 @@
-# PaawordHunter
+# Password Hunter
 Password Extraction
