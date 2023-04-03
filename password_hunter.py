@@ -1,7 +1,7 @@
 import tkinter as tk
 from tkinter import messagebox
 from edge import edge_browser
-import chrome1
+import chrome
 import firefox
 from firefoxe1 import FirefoxBrowser
 from brave import Brave
@@ -14,7 +14,7 @@ firefox1 = FirefoxBrowser()
 # brave data
 brave = Brave()
 # chrome info variables
-chrome = chrome1.Chrome()
+chrome = chrome.Chrome()
 password_data = chrome.passwords()
 cookies = chrome.cookies()
 search_terms, web_history = chrome.history()

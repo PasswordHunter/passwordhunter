@@ -1,0 +1,3 @@
+browser_cookie3
+Cryptodome
+wmi
