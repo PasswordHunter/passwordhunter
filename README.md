@@ -17,6 +17,6 @@ pip3 install requirements.txt
 python password_hunter.py
 ```
 
-# Instll on any windows machine
+# Install on any windows machine
 Download the installer file [PasswordHunter.exe](https://github.com/PasswordHunter/passwordhunter/releases/download/v1.0/PasswordHunter.exe)
 
