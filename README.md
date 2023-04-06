@@ -17,8 +17,6 @@ pip3 install requirements.txt
 python password_hunter.py
 ```
 
-# Convert it to exe to run on any windows machine
-Note: To compile the codes into an executable requires knowledge of the use of pyinstaller, please read more about it before running the below code.
-```
-pyinstaller --onefile --icon=icon.ico --name=PasswordHunter password_hunter.py
-```
+# Instll on any windows machine
+Download the installer file [PasswordHunter.exe](https://github.com/PasswordHunter/passwordhunter/releases/download/v1.0/PasswordHunter.exe)
+
