@@ -3,3 +3,4 @@ Cryptodome
 wmi
 json
 pycrypto
+FireFoxDecrypt
