@@ -20,5 +20,7 @@ python password_hunter.py
 # Convert it to exe to run on any windows machine
 Note: To compile the codes into an executable requires knowledge of the use of pyinstaller, please read more about it before running the below code.
 ```
-pyinstaller --onefile --icon=icon.ico --name=PasswordHunter password_hunter.py
+pyinstaller --onefile -w --icon=icon.ico --name=PasswordHunter password_hunter.py
 ```
+# Running the .exe file on any windows machine
+After compiling the files into a single .exe file, pyinstaller will create a directory names "dist" copy or move the .exe file from the directory and paste it in to directory where you unzip the program files. This will allow the .exe file to access the icon file. Else the program will give an error
