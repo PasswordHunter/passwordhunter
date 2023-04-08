@@ -16,6 +16,7 @@ brave = Brave()
 chrome = chrome.Chrome()
 password_data = chrome.passwords()
 cookies = chrome.cookies()
+
 web_history = chrome.history()
 search_terms= chrome.search_terms()
 autofill_data = chrome.web_data()
@@ -40,6 +41,7 @@ class Main:
         self.listbox.pack(fill=tk.BOTH, expand=True, padx=10, pady=10)
 
         self.listbox.delete(0, tk.END)
+        
         message = '''
         P A S S W O R D  H U N T E R
         Version: 1.0
@@ -70,7 +72,6 @@ class Main:
         -----BEST OF LUCK-----'''
 
         self.listbox.insert(tk.END, *message.split("\n"))
-
 
         self.password_label = tk.Label(root, font=("Helvetica", 12,"bold"),fg="white", text="")
         self.password_label.pack_forget()

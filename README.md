@@ -19,4 +19,3 @@ python password_hunter.py
 
 # Install on any windows machine
 Download the installer file [PasswordHunter.exe](https://github.com/PasswordHunter/passwordhunter/releases/download/v1.0/PasswordHunter.exe)
-

