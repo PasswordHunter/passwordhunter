@@ -3,7 +3,7 @@ Password Hunter is a comprehensive security tool designed to extract sensitive i
 
 It is important to note that using this tool on any system or device without the explicit permission of the owner is illegal and considered unethical. The creators of this tool are not responsible for any unlawful or unethical activities carried out using this program.
 
-Therefore, by downloading, installing and using this program, you acknowledge that you are using it for educational purposes only and will not use it for any illegal or unethical activities.
+Therefore, by downloading and using this program, you acknowledge that you are using it for educational purposes only and will not use it for any illegal or unethical activities.
 
 # Installation Instruction
 First, install the required modules
@@ -17,10 +17,5 @@ pip3 install requirements.txt
 python password_hunter.py
 ```
 
-# Convert it to exe to run on any windows machine
-Note: To compile the codes into an executable requires knowledge of the use of pyinstaller, please read more about it before running the below code.
-```
-pyinstaller --onefile -w --icon=icon.ico --name=PasswordHunter password_hunter.py
-```
-# Running the .exe file on any windows machine
-After compiling the files into a single .exe file, pyinstaller will create a directory names "dist" copy or move the .exe file from the directory and paste it in to directory where you unzip the program files. This will allow the .exe file to access the icon file. Else the program will give an error
+# Install on any windows machine
+Download the installer file [PasswordHunter.exe](https://github.com/PasswordHunter/passwordhunter/releases/download/v1.0/PasswordHunter.exe)
