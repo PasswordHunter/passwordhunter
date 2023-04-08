@@ -28,9 +28,8 @@ credit_card_info= chrome.credit_card_chrome()
 class Main:
     def __init__(self, master):
         self.master = master
-        self.path_icon = "D:\\Thesis\\passwordhunter\\icon.ico"
         master.title("Password Hunter")
-        master.iconbitmap(self.path_icon)
+        master.iconbitmap("icon.ico")
 
         # create label widget
         self.label = tk.Label(master, text="Password Hunter", font=("Helvetica", 14,"bold"))
