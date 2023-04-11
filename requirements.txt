@@ -4,3 +4,5 @@ wmi
 json
 pycrypto
 FireFoxDecrypt
+openpyxl
+win32crypt

