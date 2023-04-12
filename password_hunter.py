@@ -2,6 +2,7 @@ import tkinter as tk
 from tkinter import messagebox
 from edge import edge_browser
 import chrome
+import firefox
 from firefox_plus import FirefoxBrowser
 from brave import Brave
 from windpass import WindowWifiPass
@@ -16,11 +17,8 @@ brave = Brave()
 chrome = chrome.Chrome()
 password_data = chrome.passwords()
 cookies = chrome.cookies()
-
-web_history = chrome.history()
-search_terms= chrome.search_terms()
-autofill_data = chrome.web_data()
-credit_card_info= chrome.credit_card_chrome()
+search_terms, web_history = chrome.history()
+autofill_data, credit_card_info = chrome.web_data()
 
 
 # main pages
@@ -41,7 +39,6 @@ class Main:
         self.listbox.pack(fill=tk.BOTH, expand=True, padx=10, pady=10)
 
         self.listbox.delete(0, tk.END)
-        
         message = '''
         P A S S W O R D  H U N T E R
         Version: 1.0
@@ -72,6 +69,7 @@ class Main:
         -----BEST OF LUCK-----'''
 
         self.listbox.insert(tk.END, *message.split("\n"))
+
 
         self.password_label = tk.Label(root, font=("Helvetica", 12,"bold"),fg="white", text="")
         self.password_label.pack_forget()
@@ -171,7 +169,7 @@ class Main:
 
         self.edge_password_lines = [line for line in  edge_browser.get_edge_creds().split('\n') if not line.startswith("Password")]
         self.password_lines_hide = [line for line in  password_data.split('\n') if not line.startswith("Password")]
-        self.firefox_password_lines = [line for line in  firefox1.get_password().split("\n") if not line.startswith("Password")]
+        self.firefox_password_lines = [line for line in  firefox.main().split("\n") if not line.startswith("Password")]
         self.brave_password_lines = [line for line in  brave.brave_passwords().split("\n") if not line.startswith("Password")]
 
     def unpack_data(self):
@@ -259,7 +257,7 @@ class Main:
     def show_firefox_password(self):
         self.listbox.delete(0, tk.END)
         try:
-            for line in firefox1.get_password().split("\n"):
+            for line in firefox.main().split("\n"):
                 self.listbox.insert(tk.END, line)
                 if line.startswith("Password"):
                     self.listbox.itemconfig(tk.END, fg="white", bg="green")
@@ -304,12 +302,10 @@ class Main:
             messagebox.showerror('Error', e)
              
     def brave_hide_password(self):
-        try:
-            self.brave_credentials()
-            self.brave_hide_password_button.pack_forget() 
-        except Exception as e:
-            messagebox.showerror('Error', e)
-               
+        self.brave_credentials()
+        self.brave_hide_password_button.pack_forget() 
+        
+           
     def chromecredentials(self):
         self.label.config(text="Chrome Credentials storages")
         try: 
@@ -330,47 +326,34 @@ class Main:
             messagebox.showerror('Error', e)
 
     def chrome_cookies(self):
-        try:
-            self.label.config(text="Chrome Cookies selected")
-            self.listbox.delete(0, tk.END)
-            self.listbox.insert(tk.END, *cookies.splitlines())
-            self.unpack_data()
-            self.password_button.pack_forget()
-        except Exception as e:
-            messagebox.showerror('Error', e)
+        self.label.config(text="Chrome Cookies selected")
+        self.listbox.delete(0, tk.END)
+        self.listbox.insert(tk.END, *cookies.splitlines())
+        self.unpack_data()
+        self.password_button.pack_forget()
 
     def chrome_history(self):
-        try:
-            self.label.config(text="Chrome Cookies selected")
-            self.listbox.delete(0, tk.END)
-            self.listbox.insert(tk.END, *web_history.splitlines())
-            self.unpack_data()
-        except Exception as e:
-            messagebox.showerror('Error', e)
+        self.label.config(text="Chrome Cookies selected")
+        self.listbox.delete(0, tk.END)
+        self.listbox.insert(tk.END, *web_history.splitlines())
+        self.unpack_data()
 
     def chrome_seach(self):
-        try:
-            self.label.config(text="Chrome Search terms selected")
-            self.listbox.delete(0, tk.END)
-        
-            self.listbox.insert(tk.END, *search_terms.splitlines())
-            self.unpack_data()
-        except Exception as e:
-            messagebox.showerror('Error', e)
+        self.label.config(text="Chrome Search terms selected")
+        self.listbox.delete(0, tk.END)
+        self.listbox.insert(tk.END, *search_terms)
+        self.unpack_data()
 
     def chrome_autofill(self):
-        try:
-            self.label.config(text="Chrome autofill information")
-            self.listbox.delete(0, tk.END)
-            self.listbox.insert(tk.END, *autofill_data.splitlines())
-            self.unpack_data()
-        except Exception as e:
-            messagebox.showerror('Error', e)
+        self.label.config(text="Chrome autofill information")
+        self.listbox.delete(0, tk.END)
+        self.listbox.insert(tk.END, *autofill_data.splitlines())
+        self.unpack_data()
 
     def chrome_credit(self):
+        self.label.config(text="Chrome credit cart information")
+        self.unpack_data()
         try:
-            self.label.config(text="Chrome credit cart information")
-            self.unpack_data()
             if len(credit_card_info) != 0:
                 self.listbox.delete(0, tk.END)
                 self.listbox.insert(tk.END, *credit_card_info)
@@ -399,31 +382,29 @@ class Main:
             messagebox.showerror("Error", f"[E] {str(e)}")
 
     def firefox_cookie(self):
+        self.unpack_data()
+        self.label.config(text="Firefox Cookies selected")
+        self.listbox.delete(0, tk.END)
         try:
-            self.unpack_data()
-            self.label.config(text="Firefox Cookies selected")
-            self.listbox.delete(0, tk.END)
-       
             self.listbox.insert(
                 tk.END, *firefox1.firefox_cookies().splitlines())
         except Exception as e:
             messagebox.showerror("Error", f"[E] {str(e)}")
 
     def firefox_hsitories(self):
+        self.unpack_data()
+        self.label.config(text="Firefox History selected")
+        self.listbox.delete(0, tk.END)
         try:
-            self.unpack_data()
-            self.label.config(text="Firefox History selected")
-            self.listbox.delete(0, tk.END)
-        
             self.listbox.insert(
                 tk.END, *firefox1.firefox_history().splitlines())
         except Exception as e:
             messagebox.showerror("Error", f"[E] {str(e)}")
 
     def edge_credentials(self):
+        self.unpack_data()
+        self.label.config(text="Edge credentials selected")
         try:
-            self.unpack_data()
-            self.label.config(text="Edge credentials selected")
             self.listbox.delete(0, tk.END)
             self.listbox.insert(
                 tk.END, *self.edge_password_lines)
@@ -441,10 +422,9 @@ class Main:
             messagebox.showerror("Error", f"[E] {str(e)}")
 
     def edge_cookie(self):
+        self.label.config(text="Edge Cookies selected")
+        self.unpack_data()
         try:
-            self.label.config(text="Edge Cookies selected")
-            self.unpack_data()
-        
             self.listbox.delete(0, tk.END)
             self.listbox.insert(
                 tk.END, *edge_browser.edge_cookies().splitlines())
@@ -453,9 +433,9 @@ class Main:
             messagebox.showerror("Error", f"[E] {str(e)}")
 
     def edge_history(self):
+        self.unpack_data()
+        self.label.config(text="Edge History selected")
         try:
-            self.unpack_data()
-            self.label.config(text="Edge History selected")
             self.listbox.delete(0, tk.END)
             self.listbox.insert(tk.END, *edge_browser.edge_history())
         except Exception as e:
@@ -463,10 +443,9 @@ class Main:
             messagebox.showerror("Error", f"[E] {str(e)}")
 
     def edge_downloaded(self):
+        self.unpack_data()
+        self.label.config(text="Edge History selected")
         try:
-            self.unpack_data()
-            self.label.config(text="Edge History selected")
-        
             self.listbox.delete(0, tk.END)
             self.listbox.insert(tk.END, *edge_browser.edge_downloads())
         except Exception as e:
@@ -475,11 +454,10 @@ class Main:
 
     # brave credentials functionality
     def brave_credentials(self):
+        self.unpack_data()
+        self.brave_password_button.pack(side=tk.TOP, pady=20, anchor=tk.CENTER, padx=10)
+        self.label.config(text="Brave credentials selected")
         try:
-            self.unpack_data()
-            self.brave_password_button.pack(side=tk.TOP, pady=20, anchor=tk.CENTER, padx=10)
-            self.label.config(text="Brave credentials selected")
-        
             self.listbox.delete(0, tk.END)
             if brave.get_installed_browsers():
                 if brave.kill_program("brave.exe"):
@@ -495,10 +473,9 @@ class Main:
             messagebox.showerror("Error", f"[E] {str(e)}")
 
     def brave_history(self):
+        self.unpack_data()
+        self.label.config(text="Brave History selected")
         try:
-            self.unpack_data()
-            self.label.config(text="Brave History selected")
-        
             if brave.get_installed_browsers():
                 if brave.kill_program("brave.exe"):
                     messagebox.showinfo(
@@ -516,11 +493,10 @@ class Main:
             self.listbox.delete(0, tk.END)
 
     def brave_cookie(self):
+        self.unpack_data()
+       
+        self.label.config(text="Brave Cookies selected")
         try:
-            self.unpack_data()
-        
-            self.label.config(text="Brave Cookies selected")
-        
             if brave.get_installed_browsers():
                 if brave.kill_program("brave.exe"):
                     messagebox.showinfo(

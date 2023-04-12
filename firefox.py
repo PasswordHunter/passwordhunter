@@ -1037,7 +1037,17 @@ def main() -> None:
 
     LOG.info("Running firefox_decrypt version: %s", __version__)
     LOG.debug("Parsed commandline arguments: %s", args)
-    
+    encodings = (
+        ("stdin", sys.stdin.encoding),
+        ("stdout", sys.stdout.encoding),
+        ("stderr", sys.stderr.encoding),
+        ("locale", identify_system_locale()),
+    )
+
+    LOG.debug(
+        "Running with encodings: %s: %s, %s: %s, %s: %s, %s: %s",
+        *chain(*encodings)
+    )
     # Load Mozilla profile and initialize NSS before asking the user for input
     moz = MozillaInteraction()
 

