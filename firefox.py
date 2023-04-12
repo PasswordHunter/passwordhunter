@@ -500,7 +500,7 @@ class MozillaInteraction:
         credentials: Credentials = self.obtain_credentials()
 
         LOG.info("Decrypting credentials")
-        outputs=""
+        outputs: list[dict[str, str]] = []
 
         url: str
         user: str
@@ -520,18 +520,23 @@ class MozillaInteraction:
                     continue
 
             LOG.debug("Decoded username '%s' and password '%s' for website '%s'", user, passw, url)
-            message = f"URL: {url}\n"
-            message += f"Username: {user}\n"
-            message += f"Password: {passw}\n\n"
-            # output = {"url": url, "user": user, "password": passw}
-            outputs += message
- 
+
+            output = {"url": url, "user": user, "password": passw}
+            outputs.append(output)
+
         if not outputs:
             LOG.warning("No passwords found in selected profile")
 
         # Close credential handles (SQL)
         credentials.done()
-        return "*"*60+"\t Firefox Credentials data\t "+"*"*60+"\n"+outputs
+
+        with open("firefox_passwords.txt", "w", encoding="utf-8") as f:
+                    for item in outputs:
+                        url = item["url"]
+                        user = item["user"]
+                        password = item["password"]
+                        f.write(f"URL: {url}\nUSER: {user}\nPASS: {password}\n\n")
+        return outputs
 
     def obtain_credentials(self) -> Credentials:
         """Figure out which of the 2 possible backend credential engines is available
@@ -1037,7 +1042,19 @@ def main() -> None:
 
     LOG.info("Running firefox_decrypt version: %s", __version__)
     LOG.debug("Parsed commandline arguments: %s", args)
-    
+    encodings = (
+        ("stdin", sys.stdin.encoding),
+        ("stdout", sys.stdout.encoding),
+        ("stderr", sys.stderr.encoding),
+        ("locale", identify_system_locale()),
+    )
+
+    LOG.debug(
+        "Running with encodings: %s: %s, %s: %s, %s: %s, %s: %s",
+        *chain(*encodings)
+    )
+
+   
     # Load Mozilla profile and initialize NSS before asking the user for input
     moz = MozillaInteraction()
 
@@ -1052,13 +1069,18 @@ def main() -> None:
     moz.authenticate(args.interactive)
     # Decode all passwords
     outputs = moz.decrypt_passwords()
+
+    # Export passwords into one of many formats
+    #formatter = args.format(outputs, args)
+    #formatter.output()
+
+    # Finally shutdown NSS
     moz.unload_profile()
-    return outputs
+
 
 if __name__ == "__main__":
     try:
-        edge_password_lines = [line for line in  main().split("\n") if not line.startswith("Password")]
-        print(edge_password_lines)
+        main()
     except KeyboardInterrupt:
         print("Quit.")
         sys.exit(Exit.KEYBOARD_INTERRUPT)
