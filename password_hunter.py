@@ -15,7 +15,6 @@ firefox1 = FirefoxBrowser()
 # brave data
 brave = Brave()
 # chrome info variables
-<<<<<<< Updated upstream
 chromes = Chrome()
 password_data = chromes.passwords()
 cookies = chromes.cookies()
@@ -24,27 +23,11 @@ search_terms= chromes.search_terms()
 autofill_data = chromes.web_data()
 credit_card_info= chromes.credit_card_chrome()
 downloads=chromes.get_chrome_downloads()
-=======
-chromes = chrome.Chrome()
-password_data = chrome.passwords()
-cookies = chrome.cookies()
-
-web_history = chrome.history()
-search_terms= chrome.search_terms()
-autofill_data = chrome.web_data()
-credit_card_info= chrome.credit_card_chrome()
-
-
->>>>>>> Stashed changes
 # main pages
 
 class Main:
     def __init__(self, master):
         self.master = master
-<<<<<<< Updated upstream
-        self.path_icon = "icon.ico"
-=======
->>>>>>> Stashed changes
         master.title("Password Hunter")
         master.iconbitmap("icon.ico")
 
@@ -56,8 +39,6 @@ class Main:
         self.listbox = tk.Listbox(master, font=("Helvetica", 12,"bold"), height=15, selectbackground="grey")
         self.listbox.pack(fill=tk.BOTH, expand=True, padx=10, pady=10)
 
-<<<<<<< Updated upstream
-=======
         self.listbox.delete(0, tk.END)
         
         message = '''
@@ -90,7 +71,6 @@ class Main:
         -----BEST OF LUCK-----'''
 
         self.listbox.insert(tk.END, *message.split("\n"))
->>>>>>> Stashed changes
 
         self.password_label = tk.Label(root, font=("Helvetica", 12,"bold"),fg="white", text="")
         self.password_label.pack_forget()
