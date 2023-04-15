@@ -15,6 +15,7 @@ firefox1 = FirefoxBrowser()
 # brave data
 brave = Brave()
 # chrome info variables
+<<<<<<< Updated upstream
 chromes = Chrome()
 password_data = chromes.passwords()
 cookies = chromes.cookies()
@@ -23,14 +24,29 @@ search_terms= chromes.search_terms()
 autofill_data = chromes.web_data()
 credit_card_info= chromes.credit_card_chrome()
 downloads=chromes.get_chrome_downloads()
+=======
+chromes = chrome.Chrome()
+password_data = chrome.passwords()
+cookies = chrome.cookies()
+
+web_history = chrome.history()
+search_terms= chrome.search_terms()
+autofill_data = chrome.web_data()
+credit_card_info= chrome.credit_card_chrome()
+
+
+>>>>>>> Stashed changes
 # main pages
 
 class Main:
     def __init__(self, master):
         self.master = master
+<<<<<<< Updated upstream
         self.path_icon = "icon.ico"
+=======
+>>>>>>> Stashed changes
         master.title("Password Hunter")
-        master.iconbitmap(self.path_icon)
+        master.iconbitmap("icon.ico")
 
         # create label widget
         self.label = tk.Label(master, text="Password Hunter", font=("Helvetica", 14,"bold"))
@@ -40,6 +56,41 @@ class Main:
         self.listbox = tk.Listbox(master, font=("Helvetica", 12,"bold"), height=15, selectbackground="grey")
         self.listbox.pack(fill=tk.BOTH, expand=True, padx=10, pady=10)
 
+<<<<<<< Updated upstream
+=======
+        self.listbox.delete(0, tk.END)
+        
+        message = '''
+        P A S S W O R D  H U N T E R
+        Version: 1.0
+
+        Developers:
+
+        1. KWITEE D. GAYLAH
+        2. ZONGO WEND-BENEDO SIMEON
+
+        <Source Code> https://github.com/PasswordHunter/passwordhunter
+
+        Licensed under MIT LICENSE
+        
+        Please be advised that the Password Hunter program is strictly intended for 
+        educational purposes only. The tool is designed to extract sensitive information 
+        from popular web browsers and devices and is aimed at cyber security students and 
+        professionals interested in web browser and device security.
+
+        It is important to note that using this tool on any system or device without the 
+        explicit permission of the owner is illegal and considered unethical. 
+        The creators of this tool are not responsible for any unlawful or unethical 
+        carried out using this program.
+
+        We strongly encourage you to use this tool in a controlled and responsible manner, with 
+        the utmost respect for the privacy and security of others. Any misuse of this tool can 
+        lead to serious consequences and legal action against you
+        
+        -----BEST OF LUCK-----'''
+
+        self.listbox.insert(tk.END, *message.split("\n"))
+>>>>>>> Stashed changes
 
         self.password_label = tk.Label(root, font=("Helvetica", 12,"bold"),fg="white", text="")
         self.password_label.pack_forget()
