@@ -1,0 +1,4 @@
+json
+zipfile
+Cryptodome
+win32crypt
