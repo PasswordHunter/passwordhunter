@@ -16,7 +16,9 @@ pip3 install requirements.txt
 You can compile the source code or simply install the execuatable file.
 
 # Download Installation file
-If you don't want to compile the souce code, simply download the installation file: [PasswordHunter](https://github.com/PasswordHunter/passwordhunter/releases/download/v1.5/PasswordHunter.exe)
+If you don't want to compile the souce code, simply download the latest installation file: [PasswordHunter](https://github.com/PasswordHunter/passwordhunter/releases/download/v1.5/PasswordHunter.exe)
+
+You can also use older vesions. See [releases](https://github.com/PasswordHunter/passwordhunter/releases)
 
 # Run from souce
 ```
