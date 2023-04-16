@@ -39,7 +39,41 @@ class Main:
         # create listbox widget
         self.listbox = tk.Listbox(master, font=("Helvetica", 12,"bold"), height=15, selectbackground="grey")
         self.listbox.pack(fill=tk.BOTH, expand=True, padx=10, pady=10)
+        self.listbox.delete(0, tk.END)
+        message = '''----------------------------------------------------------------------------------------------------------------
+        P A S S W O R D  H U N T E R
+        Version: 1.0
 
+        Developers:
+
+        1. KWITEE D. GAYLAH
+        2. ZONGO WEND-BENEDO SIMEON
+
+        <Source Code> https://github.com/PasswordHunter/passwordhunter
+
+        Licensed under MIT LICENSE
+        
+        Please be advised that the Password Hunter program is strictly intended for 
+        educational purposes only. The tool is designed to extract sensitive information 
+        from popular web browsers and devices and is aimed at cyber security students and 
+        professionals interested in web browser and device security.
+
+        It is important to note that using this tool on any system or device without the 
+        explicit permission of the owner is illegal and considered unethical. 
+        The creators of this tool are not responsible for any unlawful or unethical 
+        carried out using this program.
+
+        We strongly encourage you to use this tool in a controlled and responsible manner, with 
+        the utmost respect for the privacy and security of others. Any misuse of this tool can 
+        lead to serious consequences and legal action against you
+        
+        Browsers installed into the computer are:
+        
+        '''+ self.get_installed_browsers() + ''' 
+        
+        ---------------------------BEST OF LUCK------------------------------------'''
+        self.listbox.insert(tk.END, *message.split("\n"))
+        
 
         self.password_label = tk.Label(root, font=("Helvetica", 12,"bold"),fg="white", text="")
         self.password_label.pack_forget()
@@ -141,41 +175,40 @@ class Main:
     
 
         # add submenus to main menu
+        self.menu.add_cascade(label="Home", command=self.home)
         self.menu.add_cascade(label="Chrome", menu=self.chrome_menu, font=("Helvetica", 14))
         self.menu.add_cascade(label="Edge", menu=self.edge_menu)
         self.menu.add_cascade(label="FireFox", menu=self.firefox_menu)
         self.menu.add_cascade(label="Brave", menu=self.brave_menu)
         self.menu.add_cascade(label="Wifi", menu=self.wifi_menu)
-        self.menu.add_cascade(label="Home", command=self.home)
+        
         
         try:
             self.edge_password_lines = [line for line in  edge_browser.get_edge_creds().split('\n') if not line.startswith("Password")]
             self.password_lines_hide = [line for line in  password_data.split('\n') if not line.startswith("Password")]
             self.firefox_password_lines = [line for line in  firefox1.get_password().split("\n") if not line.startswith("Password")]
             self.brave_password_lines = [line for line in  brave.brave_passwords().split("\n") if not line.startswith("Password")]
-        except Exception as e:
-            messagebox.showerror("Error", e)
+        except Exception:
+            pass
         
-        #call home function
-        self.home()
 #installed browser
     def get_installed_browsers(self):
         try:
             default_dir_paths = {
-                "Chrome": "C:\\Program Files (x86)\\Google\\Chrome\\Application\\chrome.exe",
-                "Firefox": "C:\\Program Files\\Mozilla Firefox\\firefox.exe",
-                "Microsoft Edge": "C:\\Program Files (x86)\\Microsoft\\Edge\\Application\\msedge.exe",
-                "Opera": "C:\\Program Files\\Opera\\launcher.exe",
-                "Safari": "C:\\Program Files\\Safari\\Safari.exe",
-                "Brave": "C:\\Program Files\\BraveSoftware\\Brave-Browser\\Application\\brave.exe",
+                "Chrome": ["C:\\Program Files (x86)\\Google\\Chrome\\Application\\chrome.exe", "C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe"],
+                "Firefox": ["C:\\Program Files\\Mozilla Firefox\\firefox.exe", "C:\\Program Files (x86)\\Mozilla Firefox\\firefox.exe"],
+                "Microsoft Edge": ["C:\\Program Files (x86)\\Microsoft\\Edge\\Application\\msedge.exe", "C:\\Program Files\\Microsoft\\Edge\\Application\\msedge.exe"],
+                "Opera": ["C:\\Program Files\\Opera\\launcher.exe", "C:\\Program Files (x86)\\Opera\\launcher.exe"],
+                "Safari": ["C:\\Program Files\\Safari\\Safari.exe", "C:\\Program Files (x86)\\Safari\\Safari.exe"],
+                "Brave": ["C:\\Program Files\\BraveSoftware\\Brave-Browser\\Application\\brave.exe", "C:\\Program Files (x86)\\BraveSoftware\\Brave-Browser\\Application\\brave.exe"]
             }
-            installed_browsers = " "
-            for browser_name, browser_path in default_dir_paths.items():
-                if os.path.exists(browser_path):
-                    if installed_browsers:
-                        installed_browsers += " --- "
-                        installed_browsers += browser_name
-            return installed_browsers
+            installed_browsers = []
+            for browser_name, browser_paths in default_dir_paths.items():
+                for browser_path in browser_paths:
+                    if os.path.exists(browser_path):
+                        installed_browsers.append(browser_name)
+                        break
+            return ' --- '.join(installed_browsers)
         except Exception as e:
             messagebox.showerror("Error", e)
             
@@ -251,42 +284,48 @@ class Main:
 # shows chrome password          
     def show_password(self):
         self.listbox.delete(0, tk.END)
-        try:
-            for line in password_data.split("\n"):
-                self.listbox.insert(tk.END, line)
-                if line.startswith("Password"):
-                    self.listbox.itemconfig(tk.END, fg="white", bg="green")
-            # self.listbox.insert(tk.END, *self.password_lines_show)
-            self.chrome_export_credential.pack(side=tk.RIGHT, pady=20, anchor=tk.CENTER, padx=10)
-            self.hide_password_button.pack(side=tk.RIGHT, pady=20, anchor=tk.CENTER, padx=10)
-            self.password_button.pack_forget()
-            self.button2.pack_forget()
-            self.button.pack_forget()
-            self.password_label.pack_forget()
-            self.password_label.config(text="")
-            self.firefox_password_button.pack_forget()
-            self.firefox_hide_password_button.pack_forget()
-            self.brave_password_button.pack_forget()
-            self.brave_hide_password_button.pack_forget()
-        except Exception as e:
-            messagebox.showerror('Error', e)
-           
+        if isinstance(password_data,str):
+            try:
+                for line in password_data.split("\n"):
+                    self.listbox.insert(tk.END, line)
+                    if line.startswith("Password"):
+                        self.listbox.itemconfig(tk.END, fg="white", bg="green")
+                # self.listbox.insert(tk.END, *self.password_lines_show)
+                self.chrome_export_credential.pack(side=tk.RIGHT, pady=20, anchor=tk.CENTER, padx=10)
+                self.hide_password_button.pack(side=tk.RIGHT, pady=20, anchor=tk.CENTER, padx=10)
+                self.password_button.pack_forget()
+                self.button2.pack_forget()
+                self.button.pack_forget()
+                self.password_label.pack_forget()
+                self.password_label.config(text="")
+                self.firefox_password_button.pack_forget()
+                self.firefox_hide_password_button.pack_forget()
+                self.brave_password_button.pack_forget()
+                self.brave_hide_password_button.pack_forget()
+            except Exception as e:
+                messagebox.showerror('Error', e)
+        else:
+            messagebox.showinfo("No data","No recorded data!!!")  
 #chrome export credentials
     def chrome_export_credentials(self):
         try:
             if chromes.get_installed_browsers():
-                filepath = filedialog.asksaveasfilename(defaultextension='.xlsx')
-                # Return if the user cancels the dialog box
-                if not filepath:
-                    return
-                wb = Workbook()
-                ws = wb.active
-                ws.append(['URL', 'Username', 'Password', 'Creation Date', 'Last Used'])
                 password_data = chromes.chrome_passwords_to_excel()
-                for row in password_data:
-                    ws.append(row)
-                wb.save(filepath)
-                messagebox.showinfo('Saved', 'Your credentials data have been saved to '+filepath)
+                if isinstance(password_data,list):
+                    filepath = filedialog.asksaveasfilename(defaultextension='.xlsx')
+                    # Return if the user cancels the dialog box
+                    if not filepath:
+                        return
+                    wb = Workbook()
+                    ws = wb.active
+                    ws.append(['URL', 'Username', 'Password', 'Creation Date', 'Last Used'])
+                    
+                    for row in password_data:
+                        ws.append(row)
+                    wb.save(filepath)
+                    messagebox.showinfo('Saved', 'Your credentials data have been saved to '+filepath)
+                else:
+                    messagebox.showwarning('No Data', "No data  to export") 
             else:
                 messagebox.showwarning('Not Found', "Chrome browser is not installed!") 
         except Exception as e:
@@ -296,18 +335,23 @@ class Main:
     def brave_export_credentials(self):
         try:
             if brave.get_installed_browsers():
-                filepath = filedialog.asksaveasfilename(defaultextension='.xlsx')
-                # Return if the user cancels the dialog box
-                if not filepath:
-                    return
-                wb = Workbook()
-                ws = wb.active
-                ws.append(['URL', 'Username', 'Password',"Creation date","Last used","Last modified"])
                 password_data = brave.brave_passwords_to_excel()
-                for row in password_data:
-                    ws.append(row)
-                wb.save(filepath)
-                messagebox.showinfo('Saved', 'Your credentials data have been saved to '+filepath)
+                if isinstance(password_data,list):
+                    filepath = filedialog.asksaveasfilename(defaultextension='.xlsx')
+                    # Return if the user cancels the dialog box
+                    if not filepath:
+                        return
+                    wb = Workbook()
+                    ws = wb.active
+                    ws.append(['URL', 'Username', 'Password',"Creation date","Last used","Last modified"])
+                    
+                    for row in password_data:
+                        ws.append(row)
+                    wb.save(filepath)
+                    messagebox.showinfo('Saved', 'Your credentials data have been saved to '+filepath)
+                else:
+                    messagebox.showwarning('No Data', "No data  to export") 
+
             else:
                 messagebox.showwarning('Not Found', "Brave browser is not installed!") 
         except Exception as e:
@@ -317,18 +361,21 @@ class Main:
     def edge_export_credentials(self):
         try:
             if edge_browser.get_edge_install():
-                filepath = filedialog.asksaveasfilename(defaultextension='.xlsx')
-                # Return if the user cancels the dialog box
-                if not filepath:
-                    return
-                wb = Workbook()
-                ws = wb.active
-                ws.append(['Index','URL', 'Username', 'Password',"Creation date"])
                 password_data = edge_browser.edge_credentials_to_excel()
-                for row in password_data:
-                    ws.append(row)
-                wb.save(filepath)
-                messagebox.showinfo('Saved', 'Your credentials data have been saved to '+filepath)
+                if isinstance(password_data,list):
+                    filepath = filedialog.asksaveasfilename(defaultextension='.xlsx')
+                    # Return if the user cancels the dialog box
+                    if not filepath:
+                        return
+                    wb = Workbook()
+                    ws = wb.active
+                    ws.append(['Index','URL', 'Username', 'Password',"Creation date"])
+                    for row in password_data:
+                        ws.append(row)
+                    wb.save(filepath)
+                    messagebox.showinfo('Saved', 'Your credentials data have been saved to '+filepath)
+                else:
+                    messagebox.showwarning('No Data', "No data  to export") 
             else:
                 messagebox.showwarning('Not Found', "Edge browser is not installed!") 
         except Exception as e:
@@ -337,18 +384,23 @@ class Main:
     def firefox_export_credentials(self):
         try:
             if firefox1.get_installed_browsers():
-                filepath = filedialog.asksaveasfilename(defaultextension='.xlsx')
-                # Return if the user cancels the dialog box
-                if not filepath:
-                    return
-                wb = Workbook()
-                ws = wb.active
-                ws.append(['URL', 'Username', 'Password'])
                 password_data = firefox1.firefox_password_to_excel()
-                for row in password_data:
-                    ws.append(row)
-                wb.save(filepath)
-                messagebox.showinfo('Saved', 'Your credentials data have been saved to '+filepath)
+                if isinstance(password_data,list):
+                    
+                    filepath = filedialog.asksaveasfilename(defaultextension='.xlsx')
+                    # Return if the user cancels the dialog box
+                    if not filepath:
+                        return
+                    wb = Workbook()
+                    ws = wb.active
+                    ws.append(['URL', 'Username', 'Password'])
+                    
+                    for row in password_data:
+                        ws.append(row)
+                    wb.save(filepath)
+                    messagebox.showinfo('Saved', 'Your credentials data have been saved to '+filepath)
+                else:
+                    messagebox.showwarning('No Data', "No data  to export")
             else:
                 messagebox.showwarning('Not Found', "Edge browser is not installed!") 
         except Exception as e:
@@ -366,28 +418,31 @@ class Main:
 #Edge show password 
     def show_edge_password(self):
         self.listbox.delete(0, tk.END)
-        try:
-            for line in edge_browser.get_edge_creds().split("\n"):
-                self.listbox.insert(tk.END, line)
-                if line.startswith("Password"):
-                    self.listbox.itemconfig(tk.END, fg="white", bg="green")
-            # self.listbox.insert(tk.END, *self.password_lines_show)
-            self.edge_export_credential.pack(side=tk.RIGHT, pady=20, anchor=tk.CENTER, padx=10)
-            self.edge_hide_password_button.pack(side=tk.RIGHT, pady=20, anchor=tk.CENTER, padx=10)
-            self.password_button.pack_forget()
-            self.edge_password_button.pack_forget()
-            self.button2.pack_forget()
-            self.button.pack_forget()
-            self.password_label.pack_forget()
-            self.firefox_password_button.pack_forget()
-            self.firefox_hide_password_button.pack_forget()
-            self.brave_password_button.pack_forget()
-            self.brave_hide_password_button.pack_forget()
-            self.firefox_export_credential.pack_forget()
-            self.brave_export_credential.pack_forget()
-            self.password_label.config(text="")
-        except Exception as e:
-            messagebox.showerror('Error', e)
+        if isinstance(edge_browser.get_edge_creds(),str):
+            try:
+                for line in edge_browser.get_edge_creds().split("\n"):
+                    self.listbox.insert(tk.END, line)
+                    if line.startswith("Password"):
+                        self.listbox.itemconfig(tk.END, fg="white", bg="green")
+                # self.listbox.insert(tk.END, *self.password_lines_show)
+                self.edge_export_credential.pack(side=tk.RIGHT, pady=20, anchor=tk.CENTER, padx=10)
+                self.edge_hide_password_button.pack(side=tk.RIGHT, pady=20, anchor=tk.CENTER, padx=10)
+                self.password_button.pack_forget()
+                self.edge_password_button.pack_forget()
+                self.button2.pack_forget()
+                self.button.pack_forget()
+                self.password_label.pack_forget()
+                self.firefox_password_button.pack_forget()
+                self.firefox_hide_password_button.pack_forget()
+                self.brave_password_button.pack_forget()
+                self.brave_hide_password_button.pack_forget()
+                self.firefox_export_credential.pack_forget()
+                self.brave_export_credential.pack_forget()
+                self.password_label.config(text="")
+            except Exception as e:
+                messagebox.showerror('Error', e)
+        else:
+            messagebox.showinfo("No data","No recorded data!!!")
       
 #Edge hide password      
     def edge_hide_password(self):
@@ -400,28 +455,31 @@ class Main:
 #Firefox show password            
     def show_firefox_password(self):
         self.listbox.delete(0, tk.END)
-        try:
-            for line in firefox1.get_password().split("\n"):
-                self.listbox.insert(tk.END, line)
-                if line.startswith("Password"):
-                    self.listbox.itemconfig(tk.END, fg="white", bg="green")
-            # self.listbox.insert(tk.END, *self.password_lines_show)
-            self.firefox_export_credential.pack(side=tk.RIGHT, pady=20, anchor=tk.CENTER, padx=10)
-            self.firefox_hide_password_button.pack(side=tk.RIGHT, pady=20, anchor=tk.CENTER, padx=10)
-            self.password_button.pack_forget()
-            self.edge_password_button.pack_forget()
-            self.firefox_password_button.pack_forget()
-            self.button2.pack_forget()
-            self.button.pack_forget()
-            self.password_label.pack_forget()
-            self.brave_password_button.pack_forget()
-            self.brave_hide_password_button.pack_forget()
-            self.edge_export_credential.pack_forget()
-            self.brave_export_credential.pack_forget()
-            self.chrome_export_credential.pack_forget()
-            self.password_label.config(text="")
-        except Exception as e:
-            messagebox.showerror('Error', e) 
+        if isinstance(firefox1.get_password(), str):
+            try:
+                for line in firefox1.get_password().split("\n"):
+                    self.listbox.insert(tk.END, line)
+                    if line.startswith("Password"):
+                        self.listbox.itemconfig(tk.END, fg="white", bg="green")
+                # self.listbox.insert(tk.END, *self.password_lines_show)
+                self.firefox_export_credential.pack(side=tk.RIGHT, pady=20, anchor=tk.CENTER, padx=10)
+                self.firefox_hide_password_button.pack(side=tk.RIGHT, pady=20, anchor=tk.CENTER, padx=10)
+                self.password_button.pack_forget()
+                self.edge_password_button.pack_forget()
+                self.firefox_password_button.pack_forget()
+                self.button2.pack_forget()
+                self.button.pack_forget()
+                self.password_label.pack_forget()
+                self.brave_password_button.pack_forget()
+                self.brave_hide_password_button.pack_forget()
+                self.edge_export_credential.pack_forget()
+                self.brave_export_credential.pack_forget()
+                self.chrome_export_credential.pack_forget()
+                self.password_label.config(text="")
+            except Exception as e:
+                messagebox.showerror('Error', e) 
+        else:
+            messagebox.showinfo("No data","No recorded data!!!")
 
 #Firefox hide password           
     def firefox_hide_password(self):
@@ -434,27 +492,30 @@ class Main:
 #Brave show password      
     def brave_show_password(self):
         self.listbox.delete(0, tk.END)
-        try:
-            for line in brave.brave_passwords().split("\n"):
-                self.listbox.insert(tk.END, line)
-                if line.startswith("Password"):
-                    self.listbox.itemconfig(tk.END, fg="white", bg="green")
-            # self.listbox.insert(tk.END, *self.password_lines_show)
-            self.brave_export_credential.pack(side=tk.RIGHT, pady=20, anchor=tk.CENTER, padx=10)
-            self.brave_hide_password_button.pack(side=tk.RIGHT, pady=20, anchor=tk.CENTER, padx=10)
-            self.password_button.pack_forget()
-            self.brave_password_button.pack_forget()
-            self.edge_password_button.pack_forget()
-            self.firefox_password_button.pack_forget()
-            self.firefox_export_credential.pack_forget()
-            self.edge_export_credential.pack_forget()
-            self.chrome_export_credential.pack_forget()
-            self.button2.pack_forget()
-            self.button.pack_forget()
-            self.password_label.pack_forget()
-            self.password_label.config(text="")
-        except Exception as e:
-            messagebox.showerror('Error', e)
+        if isinstance(brave.brave_passwords(),str):
+            try:
+                for line in brave.brave_passwords().split("\n"):
+                    self.listbox.insert(tk.END, line)
+                    if line.startswith("Password"):
+                        self.listbox.itemconfig(tk.END, fg="white", bg="green")
+                # self.listbox.insert(tk.END, *self.password_lines_show)
+                self.brave_export_credential.pack(side=tk.RIGHT, pady=20, anchor=tk.CENTER, padx=10)
+                self.brave_hide_password_button.pack(side=tk.RIGHT, pady=20, anchor=tk.CENTER, padx=10)
+                self.password_button.pack_forget()
+                self.brave_password_button.pack_forget()
+                self.edge_password_button.pack_forget()
+                self.firefox_password_button.pack_forget()
+                self.firefox_export_credential.pack_forget()
+                self.edge_export_credential.pack_forget()
+                self.chrome_export_credential.pack_forget()
+                self.button2.pack_forget()
+                self.button.pack_forget()
+                self.password_label.pack_forget()
+                self.password_label.config(text="")
+            except Exception as e:
+                messagebox.showerror('Error', e)
+        else:
+            messagebox.showinfo("No data","No recorded data!!!")
 
 #Brave hide password          
     def brave_hide_password(self):
@@ -470,9 +531,15 @@ class Main:
         try: 
             if chromes.get_installed_browsers():
                 self.listbox.delete(0, tk.END)
-                self.listbox.insert(tk.END, *self.password_lines_hide)
-                self.chrome_export_credential.pack(side=tk.RIGHT, pady=20, anchor=tk.CENTER, padx=10)
-                self.password_button.pack(side=tk.RIGHT, pady=20, anchor=tk.CENTER, padx=10)
+                if isinstance(chromes.passwords(),str):
+                    if self.password_lines_hide:
+                        self.listbox.insert(tk.END, *self.password_lines_hide)
+                        self.chrome_export_credential.pack(side=tk.RIGHT, pady=20, anchor=tk.CENTER, padx=10)
+                        self.password_button.pack(side=tk.RIGHT, pady=20, anchor=tk.CENTER, padx=10)
+                    else:
+                        messagebox.showinfo("No data","Chrome has not yet recorded cedentials!!!")
+                else:
+                        messagebox.showinfo("No data","Chrome has not yet recorded cedentials!!!")
                 self.button2.pack_forget()
                 self.button.pack_forget()
                 self.password_label.pack_forget()
@@ -497,7 +564,11 @@ class Main:
             if chromes.get_installed_browsers():
                 self.label.config(text="Chrome Cookies selected")
                 self.listbox.delete(0, tk.END)
-                self.listbox.insert(tk.END, *cookies.splitlines())
+                if isinstance(cookies,str):
+                    self.listbox.insert(tk.END, *cookies.splitlines())
+                else:
+                    messagebox.showinfo("No data","No recorded data!!!")
+
                 self.unpack_data()
                 self.password_button.pack_forget()
             else:
@@ -511,7 +582,10 @@ class Main:
             if chromes.get_installed_browsers():
                 self.label.config(text="Chrome Downloads selected")
                 self.listbox.delete(0, tk.END)
-                self.listbox.insert(tk.END, *downloads.splitlines())
+                if isinstance(downloads,str):
+                    self.listbox.insert(tk.END, *downloads.splitlines())
+                else:
+                    messagebox.showinfo("No data","No recorded data!!!")
                 self.unpack_data()
                 self.password_button.pack_forget()
             else:
@@ -524,7 +598,11 @@ class Main:
             if chromes.get_installed_browsers():
                 self.label.config(text="Chrome History selected")
                 self.listbox.delete(0, tk.END)
-                self.listbox.insert(tk.END, *web_history.splitlines())
+                if isinstance(web_history,str):
+                    
+                    self.listbox.insert(tk.END, *web_history.splitlines())
+                else:
+                    messagebox.showinfo("No data","No recorded data!!!")
                 self.unpack_data()
             else:
                 messagebox.showinfo("Info", "Chrome Browser is not installed")
@@ -537,7 +615,10 @@ class Main:
             if chromes.get_installed_browsers():
                 self.label.config(text="Chrome Search terms selected")
                 self.listbox.delete(0, tk.END)
-                self.listbox.insert(tk.END, *search_terms.splitlines())
+                if isinstance(search_terms,str):
+                    self.listbox.insert(tk.END, *search_terms.splitlines())
+                else:
+                    messagebox.showinfo("No data","No recorded data!!!")
                 self.unpack_data()
             else:
                 messagebox.showinfo("Info", "Chrome Browser is not installed")
@@ -550,7 +631,11 @@ class Main:
             if chromes.get_installed_browsers():
                 self.label.config(text="Chrome autofill information")
                 self.listbox.delete(0, tk.END)
-                self.listbox.insert(tk.END, *autofill_data.splitlines())
+                if isinstance(autofill_data,str):
+                    
+                    self.listbox.insert(tk.END, *autofill_data.splitlines())
+                else:
+                    messagebox.showinfo("No data","No recorded data!!!")
                 self.unpack_data()
             else:
                 messagebox.showinfo("Info", "Chrome Browser is not installed")
@@ -563,7 +648,7 @@ class Main:
             if chromes.get_installed_browsers():
                 self.label.config(text="Chrome credit cart information")
                 self.unpack_data()
-                if len(credit_card_info) != 0:
+                if len(credit_card_info)!=0:
                     self.listbox.delete(0, tk.END)
                     self.listbox.insert(tk.END, *credit_card_info)
                 else:
@@ -591,9 +676,15 @@ class Main:
                 self.brave_hide_password_button.pack_forget()
                 self.chrome_export_credential.pack_forget()
                 self.listbox.delete(0, tk.END)
-                self.listbox.insert(tk.END, *self.firefox_password_lines)
-                self.firefox_export_credential.pack(side=tk.RIGHT, pady=20, anchor=tk.CENTER, padx=10)
-                self.firefox_password_button.pack(side=tk.RIGHT, pady=20, anchor=tk.CENTER, padx=10)
+                if isinstance(firefox1.get_password(),str):
+                    if len(self.firefox_password_lines) != 0:
+                        self.listbox.insert(tk.END, *self.firefox_password_lines)
+                        self.firefox_export_credential.pack(side=tk.RIGHT, pady=20, anchor=tk.CENTER, padx=10)
+                        self.firefox_password_button.pack(side=tk.RIGHT, pady=20, anchor=tk.CENTER, padx=10)
+                    else:
+                        messagebox.showinfo("No data","No recorded data!!!")
+                else:
+                        messagebox.showinfo("No data","No recorded data!!!")
             else:
                 messagebox.showinfo("Info", "Firefox Browser is not installed")
         except Exception as e:
@@ -606,9 +697,11 @@ class Main:
                 self.unpack_data()
                 self.label.config(text="Firefox Downloads selected")
                 self.listbox.delete(0, tk.END)
-        
-                self.listbox.insert(
+                if isinstance(firefox1.get_firefox_downloads(), str):
+                    self.listbox.insert(
                     tk.END, *firefox1.get_firefox_downloads().splitlines())
+                else:
+                    messagebox.showinfo("No data","No recorded data!!!")
             else:
                 messagebox.showinfo("Info", "Firefox Browser is not installed")
         except Exception as e:
@@ -620,9 +713,11 @@ class Main:
                 self.unpack_data()
                 self.label.config(text="Firefox Cookies selected")
                 self.listbox.delete(0, tk.END)
-        
-                self.listbox.insert(
+                if isinstance(firefox1.firefox_cookies(), str):
+                    self.listbox.insert(
                     tk.END, *firefox1.firefox_cookies().splitlines())
+                elif firefox1.firefox_cookies() is None:
+                    messagebox.showinfo("No data","No recorded data!!!")
             else:
                 messagebox.showinfo("Info", "Firefox Browser is not installed")
         except Exception as e:
@@ -635,9 +730,11 @@ class Main:
                 self.unpack_data()
                 self.label.config(text="Firefox History selected")
                 self.listbox.delete(0, tk.END)
-            
-                self.listbox.insert(
+                if isinstance(firefox1.firefox_history(),str):
+                    self.listbox.insert(
                     tk.END, *firefox1.firefox_history().splitlines())
+                elif firefox1.firefox_history() is None:
+                    messagebox.showinfo("No data","No recorded data!!!")
             else:
                 messagebox.showinfo("Info", "Firefox Browser is not installed")
         except Exception as e:
@@ -650,10 +747,16 @@ class Main:
                 self.unpack_data()
                 self.label.config(text="Microsoft Edge credentials selected")
                 self.listbox.delete(0, tk.END)
-                self.listbox.insert(
-                    tk.END, *self.edge_password_lines)
-                self.edge_export_credential.pack(side=tk.RIGHT, pady=20, anchor=tk.CENTER, padx=10)
-                self.edge_password_button.pack(side=tk.RIGHT, pady=20, anchor=tk.CENTER, padx=10)
+                if isinstance(edge_browser.get_edge_creds(), str):
+                    if len(self.edge_password_lines) != 0:
+                        self.listbox.insert(
+                            tk.END, *self.edge_password_lines)
+                        self.edge_export_credential.pack(side=tk.RIGHT, pady=20, anchor=tk.CENTER, padx=10)
+                        self.edge_password_button.pack(side=tk.RIGHT, pady=20, anchor=tk.CENTER, padx=10)
+                    elif edge_browser.get_edge_creds() is None:
+                        messagebox.showinfo("No data","No recorded data!!!")
+                else:
+                    messagebox.showinfo("No data","No recorded data!!!")
                 self.button2.pack_forget()
                 self.button.pack_forget()
                 self.password_label.pack_forget()
@@ -676,8 +779,11 @@ class Main:
                 self.unpack_data()
             
                 self.listbox.delete(0, tk.END)
-                self.listbox.insert(
+                if isinstance(edge_browser.edge_cookies(),str):
+                    self.listbox.insert(
                     tk.END, *edge_browser.edge_cookies().splitlines())
+                else:
+                    messagebox.showinfo("No data","No recorded data!!!")
             else:
                 messagebox.showinfo("Info", "Microsoft Edge Browser is not installed")
         except Exception as e:
@@ -691,13 +797,16 @@ class Main:
                 self.unpack_data()
                 self.label.config(text="Microsoft Edge History selected")
                 self.listbox.delete(0, tk.END)
-                self.listbox.insert(tk.END, *edge_browser.edge_history())
+                if isinstance(edge_browser.edge_history(),list):
+                    self.listbox.insert(tk.END, *edge_browser.edge_history())
+                else:
+                    messagebox.showinfo("No data","No recorded data!!!")
             else:
                 messagebox.showinfo("Info", "Microsoft Edge Browser is not installed")
         except Exception as e:
             self.listbox.delete(0, tk.END)
             messagebox.showerror("Error", f"[E] {str(e)}")
-            
+       
 #edge download
     def edge_downloaded(self):
         try:
@@ -706,7 +815,10 @@ class Main:
                 self.label.config(text=" Microsoft Edge downloads selected")
             
                 self.listbox.delete(0, tk.END)
-                self.listbox.insert(tk.END, *edge_browser.edge_downloads())
+                if isinstance(edge_browser.edge_downloads(),list):
+                    self.listbox.insert(tk.END, *edge_browser.edge_downloads())
+                else:
+                    messagebox.showinfo("No data","No recorded data!!!")
             else:
                 messagebox.showinfo("Info", "Microsoft Edge Browser is not installed")
         except Exception as e:
@@ -723,16 +835,22 @@ class Main:
                 self.listbox.delete(0, tk.END)
                 if brave.kill_program("brave.exe"):
                     messagebox.showinfo(
-                        "Running", "Brave browser was running. It has been killed")
-                    self.listbox.insert(
-                        tk.END, *self.brave_password_lines)
-                    self.brave_export_credential.pack(side=tk.RIGHT, pady=20, anchor=tk.CENTER, padx=10)
-                    self.brave_password_button.pack(side=tk.RIGHT, pady=20, anchor=tk.CENTER, padx=10)
+                        "Running", "Brave browser was running. It has been killed") 
+                    if isinstance(brave.brave_passwords(),str):
+                        self.listbox.insert(
+                            tk.END, *self.brave_password_lines)
+                        self.brave_export_credential.pack(side=tk.RIGHT, pady=20, anchor=tk.CENTER, padx=10)
+                        self.brave_password_button.pack(side=tk.RIGHT, pady=20, anchor=tk.CENTER, padx=10)
+                    else:
+                        messagebox.showinfo("No data","No recorded data!!!")
                 else:
-                    self.listbox.insert(
-                        tk.END, *self.brave_password_lines)
-                    self.brave_export_credential.pack(side=tk.RIGHT, pady=20, anchor=tk.CENTER, padx=10)
-                    self.brave_password_button.pack(side=tk.RIGHT, pady=20, anchor=tk.CENTER, padx=10)
+                    if isinstance(brave.brave_passwords(),str):
+                        self.listbox.insert(
+                            tk.END, *self.brave_password_lines)
+                        self.brave_export_credential.pack(side=tk.RIGHT, pady=20, anchor=tk.CENTER, padx=10)
+                        self.brave_password_button.pack(side=tk.RIGHT, pady=20, anchor=tk.CENTER, padx=10)
+                    else:
+                        messagebox.showinfo("No data","No recorded data!!!")
             else:
                 messagebox.showwarning(
                     "Warning", "Brave browser is not installed!")
@@ -749,12 +867,18 @@ class Main:
                 if brave.kill_program("brave.exe"):
                     messagebox.showinfo(
                         "Running", "Brave browser was running. It has been killed")
-                    self.listbox.insert(
-                        tk.END, *brave.get_brave_history().splitlines())
+                    if isinstance(brave.get_brave_history(),str):
+                        self.listbox.insert(
+                            tk.END, *brave.get_brave_history().splitlines())
+                    else:
+                        messagebox.showinfo("No data","No recorded data!!!")
                 else:
                     self.listbox.delete(0, tk.END)
-                    self.listbox.insert(
-                        tk.END, *brave.get_brave_history().splitlines())
+                    if isinstance(brave.get_brave_history(),str):
+                        self.listbox.insert(
+                            tk.END, *brave.get_brave_history().splitlines())
+                    else:
+                        messagebox.showinfo("No data","No recorded data!!!")
             else:
                 self.listbox.delete(0, tk.END)
                 messagebox.showinfo(
@@ -772,8 +896,11 @@ class Main:
                 if brave.kill_program("brave.exe"):
                     messagebox.showinfo(
                         "Running", "Brave browser was running. It has been killed")
-                    self.listbox.insert(
-                        tk.END, *brave.brave_cookies().splitlines())
+                    if isinstance(brave.brave_cookies(),str):
+                        self.listbox.insert(
+                            tk.END, *brave.brave_cookies().splitlines())
+                    else:
+                        messagebox.showinfo("No data","No recorded data!!!")
                 else:
                     self.listbox.delete(0, tk.END)
                     self.listbox.insert(
@@ -795,12 +922,18 @@ class Main:
                 if brave.kill_program("brave.exe"):
                     messagebox.showinfo(
                         "Running", "Brave browser was running. It has been killed")
-                    self.listbox.insert(
+                    if isinstance(brave.get_brave_downloads(),str):
+                        self.listbox.insert(
                         tk.END, *brave.get_brave_downloads().splitlines())
+                    else:
+                        messagebox.showinfo("No data","No recorded data!!!")
                 else:
                     self.listbox.delete(0, tk.END)
-                    self.listbox.insert(
+                    if isinstance(brave.get_brave_downloads(),str):
+                        self.listbox.insert(
                         tk.END, *brave.get_brave_downloads().splitlines())
+                    else:
+                        messagebox.showinfo("No data","No recorded data!!!")
             else:
                 self.listbox.delete(0, tk.END)
                 messagebox.showinfo(
@@ -849,8 +982,12 @@ class Main:
             self.password_label.pack(pady=10)
             self.button2.pack(side=tk.RIGHT, pady=20, anchor=tk.CENTER, padx=10)
             try:
-                self.listbox.delete(0, tk.END)
-                self.listbox.insert(tk.END, *winpass.get_wifi_profile())
+                if len(winpass.get_wifi_profile()) !=0:
+                    self.listbox.delete(0, tk.END)
+                    self.listbox.insert(tk.END, *winpass.get_wifi_profile())
+                else:
+                    self.listbox.delete(0, tk.END)
+                    messagebox.showinfo("No data","No profiles saved")
             except Exception as e:
                 messagebox.showerror("Error", str(e))
         except Exception as e:
@@ -880,8 +1017,11 @@ class Main:
                     password_line = [line.strip() for line in output.split(
                         "\n") if "Key Content" in line][0]
                     password = password_line.split(":")[1].strip()
-                    self.password_label.config(
-                        text=f"Password for: {selected_item} ==> {password}", background="black")
+                    if isinstance(password,str):
+                        self.password_label.config(
+                            text=f"Password for: {selected_item} ==> {password}", background="black")
+                    else:
+                        messagebox.showerror(title=selected_item, message="No password available!!!")
                     tk.Button(self.password_label, text="Copy",
                             command=lambda: root.clipboard_append(password))
                 else:   
